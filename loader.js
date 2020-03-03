@@ -21,6 +21,14 @@ async function loadNodes(ids) {
 }
 
 /**
+ * @param {Array<string>} ids 
+ */
+async function loadNodes2(ids) {
+    const res = await load(`https://api.figma.com/v1/files/${documentId}/nodes?ids=${ids.join(',')}`)
+    return res.nodes
+}
+
+/**
  * @param {string} nodeId 
  */
 async function loadNode(nodeId) {
@@ -37,5 +45,6 @@ module.exports = {
     loadRoot,
     loadNode,
     loadNodes,
+    loadNodes2,
     loadSvg,
 }

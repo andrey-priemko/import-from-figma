@@ -42,24 +42,37 @@ async function writeColors(styles) {
     const fillNodes = (await loadNodes(fillKeys))
         .map(v => ({
             name: v.document.name,
-            color: v.document.fills[0].color,
-            opacity: v.document.fills[0].opacity,
+            cssName: `--color-${v.document.name.toLocaleLowerCase().replace(/[ /%()+#,".]+/g, '-')}`,
+            value: formatColor(
+                v.document.fills[0].color, 
+                v.document.fills[0].opacity
+            ),
         }))
 
     const content = `:root {
 	${fillNodes
-        .map(fill => `--color-${fill.name.toLocaleLowerCase().replace(/[ /%()+#,".]+/g, '-')}: ${formatColor(fill.color, fill.opacity)};`)
+        .map(fill => `${fill.cssName}: ${fill.value};`)
         .join('\n\t')
     }
 }`
 	fs.writeFileSync('css/_colorVariables.css', content, {
 		encoding: 'utf-8'
-	})
+    })
+    
+    const colors = {}
+    fillNodes.forEach(color => {
+        colors[color.name] = {
+            cssName: color.cssName,
+            value: color.value,
+        }
+    })
+
+    return colors
 }
 
 async function writeColorsByPageId(id) {
     const colorsNode = await loadNode(id)
-    writeColors(colorsNode.styles)
+    return writeColors(colorsNode.styles)
 }
 
 module.exports = {
